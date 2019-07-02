@@ -42,7 +42,7 @@ if (app.documents.length > 0) {
 
                 var theNewName = theFiles[m].name.match(/(.*)\.[^\.]+$/)[1];
                 // Save JPG
-                myDocument.saveAs((new File(theOutputPath + "/" + theNewName + "_" + "Converted" + ".jpg")), jpgSaveOptions, true);
+                myDocument.saveAs((new File(theOutputPath + "/" + theNewName + "_" + "mockup" + ".jpg")), jpgSaveOptions, true);
             }
         }
     }

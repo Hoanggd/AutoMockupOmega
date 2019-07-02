@@ -1,10 +1,12 @@
 #target photoshop
 if (app.documents.length > 0) {
     var myDocument = app.activeDocument;
+    var layers = myDocument.layers;
     var theName = myDocument.name.match(/(.*)\.[^\.]+$/)[1];
     var thePath = myDocument.path;
-    var theLayer = myDocument.activeLayer;
-
+    var theFirstLayer = layers[0];
+    var theSecondLayer = layers[1];
+    
     // PSD Options;
     psdOpts = new PhotoshopSaveOptions();
     psdOpts.embedColorProfile = true;
@@ -20,7 +22,7 @@ if (app.documents.length > 0) {
     jpgSaveOptions.quality = 12;
 
     // Check if layer is SmartObject;
-    if (theLayer.kind != "LayerKind.SMARTOBJECT") {
+    if (theFirstLayer.kind != "LayerKind.SMARTOBJECT") {
         alert("selected layer is not a smart object")
     } else {
         // Select Files;
@@ -33,7 +35,11 @@ if (app.documents.length > 0) {
         if (theFiles) {
             for (var m = 0; m < theFiles.length; m++) {
                 // Replace SmartObject
-                theLayer = replaceContents(theFiles[m], theLayer);
+                if (theSecondLayer.kind == "LayerKind.SMARTOBJECT") {
+                    theSecondLayer = replaceContents(theFiles[m], theSecondLayer);
+                }
+                theFirstLayer = replaceContents(theFiles[m], theFirstLayer);
+
                 var theNewName = theFiles[m].name.match(/(.*)\.[^\.]+$/)[1];
                 // Save JPG
                 myDocument.saveAs((new File(theOutputPath + "/" + theNewName + "_" + "Converted" + ".jpg")), jpgSaveOptions, true);

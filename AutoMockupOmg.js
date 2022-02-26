@@ -1,52 +1,51 @@
 #target photoshop
-if (app.documents.length > 0) {
-    var myDocument = app.activeDocument;
-    var layers = myDocument.layers;
-    var theName = myDocument.name.match(/(.*)\.[^\.]+$/)[1];
-    var thePath = myDocument.path;
-    var theFirstLayer = layers[0];
-    var theSecondLayer = layers[1];
-    
-    // PSD Options;
-    psdOpts = new PhotoshopSaveOptions();
-    psdOpts.embedColorProfile = true;
-    psdOpts.alphaChannels = true;
-    psdOpts.layers = true;
-    psdOpts.spotColors = true;
 
-    // JPEG Options;
-    jpgSaveOptions = new JPEGSaveOptions();
-    jpgSaveOptions.embedColorProfile = true;
-    jpgSaveOptions.formatOptions = FormatOptions.STANDARDBASELINE;
-    jpgSaveOptions.matte = MatteType.NONE;
-    jpgSaveOptions.quality = 12;
+// JPEG Options;
+jpgSaveOptions = new JPEGSaveOptions();
+jpgSaveOptions.embedColorProfile = true;
+jpgSaveOptions.formatOptions = FormatOptions.STANDARDBASELINE;
+jpgSaveOptions.matte = MatteType.NONE;
+jpgSaveOptions.quality = 12;
 
-    // Check if layer is SmartObject;
-    if (theFirstLayer.kind != "LayerKind.SMARTOBJECT") {
-        alert("selected layer is not a smart object")
-    } else {
+main();
+
+function main() {
+    if (app.documents.length > 0) {
         // Select Files;
         if ($.os.search(/windows/i) != -1) {
-            var theFiles = File.openDialog("Please select files", "*.psd; *.tif; *.jpg; *.png", true);
-            var theOutputPath = Folder.selectDialog("Please select output folder to process")
+            var theFiles = File.openDialog("Chọn file thiết kế", "*.psd; *.tif; *.jpg; *.png", true);
+            var theOutputPath = Folder.selectDialog("Chọn thư mục lưu file")
         } else {
-            var theFiles = File.openDialog("Please select files", getFiles, true);
+            var theFiles = File.openDialog("Chọn file thiết kế", getFiles, true);
         };
-        if (theFiles) {
-            for (var m = 0; m < theFiles.length; m++) {
-                // Replace SmartObject
-                if (theSecondLayer.kind == "LayerKind.SMARTOBJECT") {
-                    theSecondLayer = replaceContents(theFiles[m], theSecondLayer);
-                }
-                theFirstLayer = replaceContents(theFiles[m], theFirstLayer);
+        var documents = app.documents;
+        for (var i = 0; i < documents.length; i++) {
+            // $.writeln(documents[i])
+            app.activeDocument = documents[i];
+            var myDocument = app.activeDocument;
+            var layers = myDocument.layers;
+            var theName = myDocument.name.match(/(.*)\.[^\.]+$/)[1];
+            var thePath = myDocument.path;
+            var theFirstLayer = layers[0];
 
-                var theNewName = theFiles[m].name.match(/(.*)\.[^\.]+$/)[1];
-                // Save JPG
-                myDocument.saveAs((new File(theOutputPath + "/" + theNewName + "_" + "mockup" + ".jpg")), jpgSaveOptions, true);
+            // Check if layer is SmartObject;
+            if (theFirstLayer.kind != "LayerKind.SMARTOBJECT") {
+                alert("selected layer is not a smart object")
+            } else {
+                if (theFiles) {
+                    for (var m = 0; m < theFiles.length; m++) {
+                        theFirstLayer = replaceContents(theFiles[m], theFirstLayer);
+
+                        var theNewName = theFiles[m].name.match(/(.*)\.[^\.]+$/)[1];
+                        // Save JPG
+                        myDocument.saveAs((new File(theOutputPath + "/" + theNewName + "_" + theName + ".jpg")), jpgSaveOptions, true);
+                    }
+                }
             }
         }
-    }
-};
+    };
+}
+
 // Get PSDs, TIFs and JPGs from files
 function getFiles(theFile) {
     if (theFile.name.match(/\.(psd|tif|jpg)$/i) != null || theFile.constructor.name == "Folder") {
